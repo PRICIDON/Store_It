@@ -5,10 +5,12 @@ import Header from "@/components/Header";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
+import { cookies } from "next/headers";
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const currentUser = await getCurrentUser();
-  if (!currentUser) return redirect("/sign-in");
+  const curUser = (await cookies()).get("appwrite-session");
+  if (!currentUser || !curUser) return redirect("/sign-in");
   return (
     <main className="flex h-screen">
       <Sidebar {...currentUser} />
