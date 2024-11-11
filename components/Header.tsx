@@ -3,13 +3,24 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Search from "@/components/Search";
 import FileUploader from "@/components/FileUploader";
-const Header = () => {
+import { logout } from "@/lib/actions/user.actions";
+
+interface Props {
+  ownerId: string;
+  accountId: string;
+}
+const Header = ({ ownerId, accountId }: Props) => {
   return (
     <header className="header">
       <Search />
       <div className="header-wrapper">
-        <FileUploader />
-        <form action="">
+        <FileUploader ownerId={ownerId} accountId={accountId} />
+        <form
+          action={async () => {
+            "use server";
+            await logout();
+          }}
+        >
           <Button type="submit" className="sign-out-button">
             <Image
               src="assets/icons/logout.svg"

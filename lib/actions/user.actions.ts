@@ -5,6 +5,7 @@ import { config } from "@/lib/appwrite/config";
 import { ID, Query } from "node-appwrite";
 import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const handleError = (err: unknown, message: string) => {
   console.log(err, message);
@@ -16,7 +17,7 @@ export const sendEmailOTP = async ({ email }: { email: string }) => {
     const session = await account.createEmailToken(ID.unique(), email);
     return session.userId;
   } catch (e) {
-    handleError(e, "Failed to send email OTP");
+    handleError(e, "Ошибка при отправке OTP");
   }
 };
 const getUserByEmail = async (email: string) => {
@@ -37,7 +38,7 @@ export const createAccount = async ({
 }) => {
   const existingUser = await getUserByEmail(email);
   const accountId = await sendEmailOTP({ email });
-  if (!accountId) throw new Error("Failed to send email OTP");
+  if (!accountId) throw new Error("Ошибка при отправке OTP");
   if (!existingUser) {
     const { databases } = await createAdminClient();
     await databases.createDocument(
@@ -72,7 +73,7 @@ export const verifySecret = async ({
     });
     return parseStringify({ sessionId: session.$id });
   } catch (e) {
-    handleError(e, "Failed to send email OTP");
+    handleError(e, "Ошибка при отправке OTP");
   }
 };
 
@@ -86,4 +87,30 @@ export const getCurrentUser = async () => {
   );
   if (user.total <= 0) return null;
   return parseStringify(user.documents[0]);
+};
+export const logout = async () => {
+  const { account } = await createSessionClient();
+  try {
+    await account.deleteSession("current");
+    (await cookies()).delete("appwrite-session");
+  } catch (e) {
+    handleError(e, "Ошибка при выходе");
+  } finally {
+    redirect("/sign-in");
+  }
+};
+
+export const signInUser = async ({ email }: { email: string }) => {
+  try {
+    const existingUser = await getUserByEmail(email);
+
+    // Пользователь существует? Отправляем OTP
+    if (existingUser) {
+      await sendEmailOTP({ email });
+      return parseStringify({ accountId: existingUser.accountId });
+    }
+    return parseStringify({ accountId: null, error: "Пользователь не найден" });
+  } catch (e) {
+    handleError(e, "Ошибка при входе в аккаунт");
+  }
 };
