@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -24,9 +23,8 @@ import { constructDownloadUrl } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { renameFile } from "@/lib/actions/file.actions";
-import { getExtension } from "next/dist/server/serve-static";
+
 import { usePathname } from "next/navigation";
-import { log } from "node:util";
 
 const ActionsDropdown = ({ file }: { file: Models.Document }) => {
   const path = usePathname();
@@ -58,8 +56,6 @@ const ActionsDropdown = ({ file }: { file: Models.Document }) => {
       share: () => console.log("share"),
       delete: () => console.log("delete"),
     };
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     success = await actions[action.value as keyof typeof actions]();
     if (success) closeAllModals();
     setIsLoading(false);

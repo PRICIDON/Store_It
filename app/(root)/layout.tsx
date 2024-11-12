@@ -8,12 +8,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  
+  try {
     const currentUser = await getCurrentUser();
-    const sessionCookie = (await cookies()).get("appwrite-session");
-    if (!currentUser || !sessionCookie) {
-      console.log("Error during layout rendering:");
-      redirect("/sign-in");
+    if (!currentUser) {
+      console.log("Error during layout rendering");
     }
     return (
       <main className="flex h-screen">
@@ -27,5 +25,9 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
         <Toaster />
       </main>
     );
+  } catch (error) {
+    console.log("Error during layout rendering:", error);
+    redirect("/sign-in");
+  }
 };
 export default Layout;
