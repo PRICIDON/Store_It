@@ -91,3 +91,25 @@ export const getFiles = async () => {
     handleError(e, "Ошибка при получение файлов");
   }
 };
+export const renameFile = async ({
+  fileId,
+  name,
+  extension,
+  path,
+}: RenameFileProps) => {
+  const { databases } = await createAdminClient();
+  try {
+    const newName = `${name}.${extension}`;
+    const updatedFile = await databases.updateDocument(
+      config.databaseId,
+      config.filesCollectionId,
+      fileId,
+      {
+        name: newName,
+      },
+    );
+    revalidatePath(path);
+  } catch (e) {
+    handleError(e, "Ошибка при переименование файла");
+  }
+};
