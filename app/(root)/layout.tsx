@@ -10,9 +10,6 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   try {
     const currentUser = await getCurrentUser();
     const sessionCookie = (await cookies()).get("appwrite-session");
-    if (!currentUser || !sessionCookie) {
-      return redirect("/sign-in");
-    }
 
     return (
       <main className="flex h-screen">
