@@ -109,6 +109,7 @@ export const renameFile = async ({
       },
     );
     revalidatePath(path);
+    return parseStringify(updatedFile);
   } catch (e) {
     handleError(e, "Ошибка при переименование файла");
   }
