@@ -25,8 +25,8 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
       </main>
     );
   } catch (error) {
-    console.error("Error during layout rendering:", error);
-    // return redirect("/sign-in");
+    console.log("Error during layout rendering:", error);
+    return redirect("/sign-in");
   }
 };
 export default Layout;
