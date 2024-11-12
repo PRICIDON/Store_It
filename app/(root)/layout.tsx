@@ -11,6 +11,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
     const currentUser = await getCurrentUser();
     const sessionCookie = (await cookies()).get("appwrite-session");
     if (!currentUser || !sessionCookie) {
+      console.log("Error during layout rendering:");
       return redirect("/sign-in");
     }
     return (
@@ -20,7 +21,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
           <MobileNavigation {...currentUser} />
           <Header {...currentUser} />
           <div className="main-content">{children}</div>
-        </section>{" "}
+        </section>
         <Toaster />
       </main>
     );
