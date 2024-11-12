@@ -6,10 +6,10 @@ import FileUploader from "@/components/FileUploader";
 import { logout } from "@/lib/actions/user.actions";
 
 interface Props {
-  ownerId: string;
+  $id: string;
   accountId: string;
 }
-const Header = ({ ownerId, accountId }: Props) => {
+const Header = ({ $id: ownerId, accountId }: Props) => {
   return (
     <header className="header">
       <Search />
