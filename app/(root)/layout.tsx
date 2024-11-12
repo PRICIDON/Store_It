@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/actions/user.actions";
 import { Toaster } from "@/components/ui/toaster";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   try {
     const currentUser = await getCurrentUser();
@@ -21,6 +22,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
           <MobileNavigation {...currentUser} />
           <Header {...currentUser} />
           <div className="main-content">{children}</div>
+          <SpeedInsights />
         </section>
         <Toaster />
       </main>
