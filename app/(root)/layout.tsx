@@ -4,7 +4,6 @@ import MobileNavigation from "@/components/MobileNavigation";
 import Header from "@/components/Header";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { Toaster } from "@/components/ui/toaster";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 const Layout = async ({ children }: { children: React.ReactNode }) => {
