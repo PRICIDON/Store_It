@@ -60,26 +60,46 @@ export const uploadFile = async ({
   }
 };
 
-function createQueries(curUser: Models.Document) {
+function createQueries(
+  curUser: Models.Document,
+  types: string[],
+  searchText: string,
+  sort: string,
+  limit?: number,
+) {
   const queries = [
     Query.or([
       Query.equal("owner", curUser.$id),
       Query.contains("users", curUser.email),
     ]),
   ];
+  if (types.length > 0) queries.push(Query.equal("type", types));
+  if (searchText) queries.push(Query.contains("name", searchText));
+  if (limit) queries.push(Query.limit(limit));
+  // ...
+  if (sort) {
+    const [sortBy, orderBy] = sort.split("-");
+    queries.push(
+      orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy),
+    );
+  }
 
-  // TODO: Search, sort, limits...
+  // ...
   return queries;
 }
 
-export const getFiles = async () => {
+export const getFiles = async ({
+  types = [],
+  sort = "$createdAt-desc",
+  searchText = "",
+  limit,
+}: GetFilesProps) => {
   const { databases } = await createAdminClient();
   try {
     const curUser = await getCurrentUser();
 
     if (!curUser) throw new Error("Пользователь не найден");
-    const queries = createQueries(curUser);
-    console.log({ curUser, queries });
+    const queries = createQueries(curUser, types, searchText, sort, limit);
     const files = await databases.listDocuments(
       config.databaseId,
       config.filesCollectionId,
@@ -110,6 +130,51 @@ export const renameFile = async ({
     );
     revalidatePath(path);
     return parseStringify(updatedFile);
+  } catch (e) {
+    handleError(e, "Ошибка при переименование файла");
+  }
+};
+
+export const updateFileUsers = async ({
+  fileId,
+  emails,
+
+  path,
+}: UpdateFileUsersProps) => {
+  const { databases } = await createAdminClient();
+  try {
+    const updatedFile = await databases.updateDocument(
+      config.databaseId,
+      config.filesCollectionId,
+      fileId,
+      {
+        users: emails,
+      },
+    );
+    revalidatePath(path);
+    return parseStringify(updatedFile);
+  } catch (e) {
+    handleError(e, "Ошибка при переименование файла");
+  }
+};
+
+export const deleteFile = async ({
+  fileId,
+  bucketFileId,
+  path,
+}: DeleteFileProps) => {
+  const { databases, storage } = await createAdminClient();
+  try {
+    const deletedFile = await databases.deleteDocument(
+      config.databaseId,
+      config.filesCollectionId,
+      fileId,
+    );
+    if (deletedFile) {
+      await storage.deleteFile(config.bucketId, bucketFileId);
+    }
+    revalidatePath(path);
+    return parseStringify({ status: "success" });
   } catch (e) {
     handleError(e, "Ошибка при переименование файла");
   }
